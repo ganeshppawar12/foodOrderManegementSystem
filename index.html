@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Burger King Ordering App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .app-container {
+      max-width: 600px;
+      width: 100%;
+    }
+    .title {
+      color: #ff4500;
+      font-weight: bold;
+      font-size: 24px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .checkbox-container {
+      display: flex;
+      flex-direction: column;
+      margin: 10px 0;
+    }
+    .checkbox-container label {
+      margin: 5px 0;
+      font-size: 16px;
+    }
+    .order-button {
+      background-color: #ff4500;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      cursor: pointer;
+      font-size: 18px;
+      border-radius: 5px;
+      width: 100%;
+      transition: background-color 0.3s;
+    }
+    .order-button:hover {
+      background-color: #ff6500;
+    }
+    .order-summary {
+      position: sticky;
+      top: 0;
+      background-color: #ffffff;
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      margin-bottom: 20px;
+    }
+    .orders-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+    }
+    .order-card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    .order-id {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background: #ff4500;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    .order-details {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .food-image {
+      width: 50px;
+      height: 50px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    .food-name {
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .loading {
+      font-size: 16px;
+      color: #007bff;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <h2 class="title">Burger King Ordering App</h2>
+  <div class="checkbox-container">
+    <label><input type="checkbox" value="burger"> Burger 🍔</label>
+    <label><input type="checkbox" value="fries"> Fries 🍟</label>
+    <label><input type="checkbox" value="nuggets"> Nuggets 🍗</label>
+    <label><input type="checkbox" value="coke"> Coke 🥤</label>
+    <label><input type="checkbox" value="icecream"> Ice Cream 🍦</label>
+  </div>
+  <button class="order-button" onclick="placeOrder()">Order Food</button>
+  
+  <!-- Order Summary Section (Sticky) -->
+  <div class="order-summary">
+    <h3>Order Summary</h3>
+    <div class="orders-list" id="ordersList"></div>
+  </div>
+</div>
+
+<script>
+  let orderCount = 0;
+
+  function placeOrder() {
+    const selectedItems = Array.from(document.querySelectorAll('.checkbox-container input:checked')).map(item => item.value);
+    
+    if (selectedItems.length === 0) {
+      alert("Please select at least one item to order.");
+      return;
+    }
+
+    orderCount++;
+    const orderId = orderCount;
+
+    // Create a new order card
+    const orderCard = document.createElement('div');
+    orderCard.classList.add('order-card');
+    orderCard.innerHTML = `
+      <div class="order-id">Order #${orderId}</div>
+      <div class="order-details">
+        <p class="loading">Preparing your order...</p>
+      </div>
+    `;
+    document.getElementById('ordersList').appendChild(orderCard);
+
+    // Simulate food preparation time with a promise
+    const preparationTime = Math.floor(Math.random() * 5000) + 2000;
+    
+    new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(selectedItems);
+      }, preparationTime);
+    }).then((items) => {
+      const foodImages = {
+        burger: 'https://www.shutterstock.com/image-photo/classic-hamburger-stock-photo-isolated-600nw-2282033179.jpg',
+        fries: 'https://www.shutterstock.com/image-photo/plate-tasty-french-fries-ketchup-260nw-2294178145.jpg',
+        nuggets: 'https://www.shutterstock.com/image-photo/chicken-nuggets-tenders-snack-bites-260nw-2486963761.jpg',
+        coke: 'https://www.shutterstock.com/image-photo/cocktail-ice-coke-lime-260nw-1187214871.jpg',
+        icecream: 'https://www.shutterstock.com/image-photo/detailed-view-showcasing-scoop-white-260nw-2474967653.jpg'
+      };
+
+      // Replace loading message with food items
+      const orderDetails = orderCard.querySelector('.order-details');
+      orderDetails.innerHTML = ''; // Clear previous content
+      
+      items.forEach(item => {
+        const foodDiv = document.createElement('div');
+        foodDiv.classList.add('food-item');
+        
+        const foodImage = document.createElement('img');
+        foodImage.src = foodImages[item];
+        foodImage.classList.add('food-image');
+        
+        const foodName = document.createElement('p');
+        foodName.classList.add('food-name');
+        foodName.textContent = item.charAt(0).toUpperCase() + item.slice(1);
+        
+        foodDiv.appendChild(foodImage);
+        foodDiv.appendChild(foodName);
+        orderDetails.appendChild(foodDiv);
+      });
+    });
+  }
+</script>
+
+</body>
+</html>
